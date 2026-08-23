@@ -1,0 +1,56 @@
+/* Observatory eye identity. Imported after globals.css so it cleanly supersedes the legacy mark. */
+.sigil{
+  position:relative;
+  width:76px;
+  height:76px;
+  flex:0 0 76px;
+  transform:none;
+  clip-path:none;
+  overflow:hidden;
+  border:1px solid #53646b;
+  border-radius:5px;
+  background:#071015 url('/brand-eye-static.webp') center/cover no-repeat;
+  box-shadow:0 0 0 1px #050708,0 0 24px #9ddcff22;
+}
+.sigil:before,.sigil:after,.sigil i{display:none!important}
+.sigilStatic,.sigilMotion{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  display:block;
+  object-fit:cover;
+}
+.sigilStatic{z-index:1}
+.sigilMotion{z-index:2;pointer-events:none}
+.brand{gap:18px}
+.brand b{font-size:19px}
+.brand small{font-size:9px;line-height:1.35}
+.topbar{min-height:96px}
+footer:before{
+  width:64px;
+  height:52px;
+  flex:0 0 64px;
+  border:1px solid #53646b;
+  border-radius:4px;
+  background:#071015 url('/brand-eye-static.webp') center/cover no-repeat;
+  box-shadow:0 0 12px #9ddcff18;
+}
+@media(max-width:900px){
+  .sigil{width:68px;height:68px;flex-basis:68px}
+  .topbar{min-height:88px}
+}
+@media(max-width:700px){
+  .sigil{width:64px;height:64px;flex-basis:64px}
+  .brand{gap:12px}
+  .brand b{font-size:17px}
+}
+@media(max-width:560px){
+  .sigil{width:60px;height:60px;flex-basis:60px}
+  .brand b{font-size:16px}
+  .brand small{font-size:8px}
+  footer:before{width:58px;height:48px;flex-basis:58px}
+}
+@media(prefers-reduced-motion:reduce){
+  .sigilMotion{display:none}
+}
