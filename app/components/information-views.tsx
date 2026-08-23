@@ -77,7 +77,7 @@ export function MethodView() {
     ["CURRENT STATE", "The current-state table answers what each source says now. Full-catalog and bounded recent feeds retain different coverage semantics, which are shown per source."],
     ["CHANGE LEDGER", "Seven-day events record meaningful NEW, UPDATED, and defensible REMOVED transitions. Unchanged sightings update current state without creating duplicate revisions."],
     ["TIME BASIS", "Threat views use source observation time. Observatory Events use badBANANA detection time. Those clocks are never presented as equivalent."],
-    ["INGESTION", "This deployment is demand-driven because Sites exposes no scheduled-trigger configuration. Explicit maintenance and ordinary D1 reads are separate paths."],
+    ["INGESTION", "This deployment is demand-driven because scheduled collection is not enabled in this release. Explicit maintenance and ordinary D1 reads are separate paths."],
     ["IDENTITY", "Stable source identity deduplicates repeated fetches. Records from different sources remain independent even when their indicators match."],
     ["ATTRIBUTION", "Infrastructure geography is not attacker attribution. No actor, nationality, ownership, or intent is inferred."],
     ["CORRELATION", "Cross-source equality is correlation, not campaign membership or attribution. Original evidence records remain distinct."],
