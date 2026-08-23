@@ -9,7 +9,7 @@
   overflow:hidden;
   border:1px solid #53646b;
   border-radius:5px;
-  background:#071015 url('/brand-eye-static.webp') center/cover no-repeat;
+  background:#071015 url('/brand-eye-poster.jpg') center/cover no-repeat;
   box-shadow:0 0 0 1px #050708,0 0 24px #9ddcff22;
 }
 .sigil:before,.sigil:after,.sigil i{display:none!important}
@@ -33,7 +33,7 @@ footer:before{
   flex:0 0 64px;
   border:1px solid #53646b;
   border-radius:4px;
-  background:#071015 url('/brand-eye-static.webp') center/cover no-repeat;
+  background:#071015 url('/brand-eye-poster.jpg') center/cover no-repeat;
   box-shadow:0 0 12px #9ddcff18;
 }
 @media(max-width:900px){
