@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildReplayFrame, orderReplayEvents, replaySourceOrder } from "../lib/replay.ts";
+import { buildReplayFrame, orderReplayEvents, replayIndicator, replaySourceOrder } from "../lib/replay.ts";
 
 const record = (id, source = "threatfox") => ({ id, source, kind: "domain", indicator: `${id}.example`, observedAt: "2026-08-21T00:00:00.000Z", tags: [], ingestedAt: "2026-08-21T00:00:01.000Z", metadata: {} });
 const event = (eventId, observationId, eventType, detectedAt, current, previous, source = "threatfox") => ({ eventId, observationId, eventType, detectedAt, current, previous, source, diff: [] });
@@ -28,4 +28,13 @@ test("replay applies material transitions without inventing unseen baseline stat
 test("source lanes are ordered by event count then name", () => {
   const events = [event("1", "a", "new", "2026-08-21T00:01:00.000Z", record("a", "urlhaus"), undefined, "urlhaus"), event("2", "b", "new", "2026-08-21T00:02:00.000Z", record("b", "cisa-kev"), undefined, "cisa-kev"), event("3", "c", "new", "2026-08-21T00:03:00.000Z", record("c", "urlhaus"), undefined, "urlhaus")];
   assert.deepEqual(replaySourceOrder(events), ["urlhaus", "cisa-kev"]);
+});
+
+test("replay defangs URL indicators while preserving other indicator types", () => {
+  const urlRecord = { ...record("url", "urlhaus"), kind: "url", indicator: "http://112.198.130.112:60062/bin.sh" };
+  const urlEvent = event("4", "url", "updated", "2026-08-21T00:04:00.000Z", urlRecord, undefined, "urlhaus");
+  assert.equal(replayIndicator(urlEvent), "hxxp://112[.]198[.]130[.]112:60062/bin[.]sh");
+
+  const domainEvent = event("5", "domain", "new", "2026-08-21T00:05:00.000Z", record("domain"));
+  assert.equal(replayIndicator(domainEvent), "domain.example");
 });
