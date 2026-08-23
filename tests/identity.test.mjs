@@ -17,11 +17,10 @@ test("Observatory eye identity has animated and static assets", async () => {
   ]);
   await Promise.all([
     access(new URL("../public/brand-eye-loop.mp4", import.meta.url)),
-    access(new URL("../public/brand-eye-static.webp", import.meta.url)),
     access(new URL("../public/brand-eye-poster.jpg", import.meta.url)),
   ]);
   assert.match(topbar, /brand-eye-loop\.mp4/);
-  assert.match(topbar, /brand-eye-static\.webp/);
+  assert.match(topbar, /brand-eye-poster\.jpg/);
   assert.match(css, /prefers-reduced-motion:reduce/);
   assert.doesNotMatch(topbar + css, /brand-gnome-observatory/);
 });
