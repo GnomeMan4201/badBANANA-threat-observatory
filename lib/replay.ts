@@ -1,4 +1,5 @@
 import type { NormalizedObservation, ObservationEvent } from "./threat-types";
+import { defangUrl } from "./normalize";
 
 export interface ReplayEntity {
   observationId: string;
@@ -34,4 +35,10 @@ export function replaySourceOrder(events: ObservationEvent[]): string[] {
   const counts = new Map<string, number>();
   events.forEach((event) => counts.set(event.source, (counts.get(event.source) ?? 0) + 1));
   return [...counts.keys()].sort((left, right) => (counts.get(right) ?? 0) - (counts.get(left) ?? 0) || left.localeCompare(right));
+}
+
+export function replayIndicator(event: ObservationEvent): string {
+  const record = event.current ?? event.previous;
+  if (record?.kind === "url" && record.indicator) return defangUrl(record.indicator);
+  return record?.indicator ?? record?.title ?? record?.sourceRecordId ?? event.observationId;
 }
