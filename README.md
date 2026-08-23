@@ -1,7 +1,7 @@
-# badBANANA // THREAT OBSERVATORY 
+# badBANANA // THREAT OBSERVATORY
 
 <p align="center">
-  <img src="docs/observatory-eye.gif" alt="badBANANA Observatory eye" width="320">
+  <img src="docs/observatory-eye-faithful-hq.gif" alt="badBANANA Observatory eye" width="320">
 </p>
 
 An evidence-first threat-observation system that keeps current source state, material-change events, and operational fetch telemetry semantically separate. Missing, stale, disabled, or unavailable data remains visibly missing. The interface never substitutes demo records or inferred attribution.
@@ -221,6 +221,7 @@ npm run lint
 ```
 
 `npm test` is the supported test entry point: it performs a full production build before the deterministic suite so artifact-level client secret isolation can inspect `dist/client`. Running `node --test` directly against a clean checkout intentionally omits that required build artifact. Tests cover strict calendar and acknowledgement timestamp parsing, optional device storage, stable correlation dependencies, normalized evidence, canonical tag hashing, material event creation, unchanged re-ingestion, previous payload preservation, last-change durability, field diffs, event retention and ledger gaps, evidence traces, empty-source export policy, STIX representation/count integrity, TTL/backoff eligibility, refresh leases, server-side scope-before-pagination wiring, dedicated GEO/Recent-KEV queries, cursor validation, read-path isolation, source coverage, external reference policy, rate-limit accuracy, source failure isolation, and client secret isolation.
+
 ## Geographic enrichment
 
 GEO mode plots only validated public IPv4/IPv6 observations. A dedicated D1 query selects eligible IP records across the requested current-state window instead of reusing the generic observations page. The response reports candidate-record totals and whether its 2,000-record safety bound was reached. Callers cannot supply arbitrary upstream destinations or IP lists. GeoJS is the fixed primary provider and FreeIPAPI is the fixed fallback; arbitrary upstream URLs are impossible. The application bounds external work through a 12-address request cap, 30-day D1 success cache, five-minute retry cache, and a dedicated route limiter. Every plotted point retains its actual provider provenance and can open its underlying local record.
