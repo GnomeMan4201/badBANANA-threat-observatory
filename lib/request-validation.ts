@@ -6,12 +6,12 @@ export function parseWindow(value: string | null): TimeWindow { return value && 
 const scopes = new Set<ObservationScope>(["all", "urlhaus", "malwarebazaar", "infrastructure"]);
 export function parseObservationScope(value: string | null): ObservationScope { return value && scopes.has(value as ObservationScope) ? value as ObservationScope : "all"; }
 export function parseSearchQuery(value: string | null): string | null { if (!value) return null; const query = value.trim(); return query.length >= 2 && query.length <= 160 && !/[\u0000-\u001f]/.test(query) ? query : null; }
-// Browser CSRF mitigation only: direct non-browser HTTP clients may omit Origin/Sec-Fetch-Site, so this is not an authentication boundary.
+// Browser request-origin enforcement only: Origin and Fetch Metadata can be forged by direct HTTP clients, so this is not authentication.
 export function isSameOriginMutation(request: Request): boolean {
   const fetchSite = request.headers.get("sec-fetch-site");
-  if (fetchSite === "cross-site") return false;
+  if (fetchSite && fetchSite !== "same-origin") return false;
   const origin = request.headers.get("origin");
-  if (!origin) return true;
+  if (!origin) return false;
   try { return new URL(origin).origin === new URL(request.url).origin; }
   catch { return false; }
 }
