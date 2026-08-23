@@ -1,10 +1,10 @@
 # Production capture provenance
 
-These assets are presentation-normalized production screenshots supplied from the live v1.2.0 Observatory. Processing is limited to crop, resize, compression, layout composition, and replacement of the retired header mark with the current Observatory eye. Evidence values and interface states are not regenerated.
+These files are raster production captures from the v1.2.0 Observatory. Repository processing is limited to extracting the underlying JPEG capture from the prior wrapper; displayed evidence, timestamps, counts, IOC values, and interface state are not regenerated.
 
-- `pulse-relationships.svg` — Pulse relationship view.
-- `replay-transitions.svg` — page-bounded transition replay.
-- `geo-public-ip.svg` — approximate public-IP geography.
-- `source-evidence.svg` — URLhaus and MalwareBazaar source surfaces.
+- `pulse-relationships.jpg` — Pulse / Observation Relationships.
+- `replay-transitions.jpg` — page-bounded Transition Replay.
+- `geo-public-ip.jpg` — approximate public-IP geography.
+- `source-records.jpg` — URLhaus and MalwareBazaar source records.
 
-The SVG containers embed raster captures so the repository can retain deterministic, reviewable assets without external image hosting.
+The README references these raster files directly so GitHub web and mobile do not depend on SVG wrappers or embedded base64 images.
