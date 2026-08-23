@@ -15,7 +15,11 @@ export function Topbar({ now, query, dataState, searchEnabled = true, compact = 
   return (
     <header className={`topbar ${searchEnabled ? "" : "noSearch"} ${compact ? "compact" : ""}`}>
       <button className="brand" onClick={onHome} aria-label="Open device briefing">
-        <span className="sigil" aria-hidden="true" />
+        <span className="sigil" aria-hidden="true">
+          <span className="sigilArtwork" />
+          <span className="sigilGlow" />
+          <span className="sigilScan" />
+        </span>
         <span><b>badBANANA</b><small>THREAT OBSERVATORY</small></span>
       </button>
       <div className="statusStrip">

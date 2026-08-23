@@ -4,6 +4,14 @@ An evidence-first threat-observation system that keeps current source state, mat
 
 The current release hardens evidence dates and device-local acknowledgement state, makes all important read failures visibly distinct from successful zero-result states, stabilizes correlation requests, and strengthens the evidence drawer, bounded investigation filters, source interpretation, mobile controls, and export accounting. Every animated replay mark still corresponds to a retained `NEW`, `UPDATED`, or `REMOVED` event; it is not decorative network traffic.
 
+## Production view
+
+![badBANANA Threat Observatory Pulse relationship view](docs/screenshots/pulse-relationships.svg)
+
+Production captures are source-preserving screenshots from the live v1.2.0 Observatory. They are cropped and normalized for presentation; evidence values and interface states are not regenerated or substituted.
+
+[Open the production gallery →](docs/SHOWCASE.md)
+
 ## Live deployment
 
 - Production: https://badbanana-threat-observatory.badbanana6969.workers.dev

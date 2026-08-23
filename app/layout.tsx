@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./brand-eye.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://badbanana-threat-observatory.badbanana6969.workers.dev"),
