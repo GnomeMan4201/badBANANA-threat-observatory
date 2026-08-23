@@ -1,7 +1,7 @@
-# badBANANA // THREAT OBSERVATORY
+# badBANANA // THREAT OBSERVATORY 
 
 <p align="center">
-  <img src="docs/observatory-eye-animated.svg" alt="badBANANA Observatory eye" width="320">
+  <img src="docs/observatory-eye.gif" alt="badBANANA Observatory eye" width="320">
 </p>
 
 An evidence-first threat-observation system that keeps current source state, material-change events, and operational fetch telemetry semantically separate. Missing, stale, disabled, or unavailable data remains visibly missing. The interface never substitutes demo records or inferred attribution.
