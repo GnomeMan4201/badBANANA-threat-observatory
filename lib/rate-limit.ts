@@ -49,6 +49,7 @@ function checkBucket(request: Request, store: Map<string, Bucket>, maximum: numb
   retryAfterSeconds: number;
 } {
   const now = Date.now();
+  // Cloudflare Workers overwrite cf-connecting-ip at the edge; this keying assumption is only valid behind that trusted edge.
   const key = request.headers.get("cf-connecting-ip") ?? "anonymous";
   const current = store.get(key);
   const bucket = !current || current.resetsAt <= now
