@@ -6,17 +6,17 @@ The current release hardens evidence dates and device-local acknowledgement stat
 
 ## Production view
 
-![badBANANA Threat Observatory Pulse relationship view](docs/screenshots/pulse-relationships.svg)
+![badBANANA Threat Observatory production views](docs/screenshots/production-views.webp)
 
-Production captures are source-preserving screenshots from the live v1.2.0 Observatory. They are cropped and normalized for presentation; evidence values and interface states are not regenerated or substituted.
+These are presentation crops of real production captures from the Observatory. Cropping and resizing do not alter evidence values or interface state.
 
-[Open the production gallery →](docs/SHOWCASE.md)
+[Open the production gallery](docs/SHOWCASE.md)
 
 ## Live deployment
 
 - Production: https://badbanana-threat-observatory.badbanana6969.workers.dev
-- Latest release: https://github.com/GnomeMan4201/badBANANA-threat-observatory/releases/tag/v1.2.0
-- Frozen release source: `v1.2.0`
+- Current source: `main`
+- Last tagged release: `v1.2.0`
 
 The production Worker is backed by Cloudflare D1. Feed credentials remain server-only Cloudflare Worker secrets and are never required in the browser.
 
