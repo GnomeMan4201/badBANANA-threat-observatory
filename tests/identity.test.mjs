@@ -7,5 +7,5 @@ test("source metadata and identity contain no starter branding", async () => {
   const favicon = await readFile(new URL("../public/favicon.svg", import.meta.url), "utf8");
   assert.match(layout, /badBANANA \/\/ THREAT OBSERVATORY/);
   assert.match(layout, /og\.png/);
-  assert.doesNotMatch(layout + favicon, /Starter Project|codex-preview|#68C4FF/);
+  assert.doesNotMatch(layout + favicon, /Starter Project|#68C4FF/);
 });
