@@ -6,7 +6,7 @@ on:
   pull_request:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: verify-${{ github.ref }}
@@ -20,119 +20,7 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
-
-      - name: Finalize source-preserving release assets
-        shell: python
-        run: |
-          import base64
-          import pathlib
-          import re
-          import subprocess
-
-          root = pathlib.Path(".")
-
-          def extract_jpeg(text: str, label: str) -> bytes:
-              match = re.search(r"data:image/jpeg;base64,([^\"')>]+)", text)
-              if not match:
-                  raise SystemExit(f"missing embedded JPEG payload: {label}")
-              data = base64.b64decode(match.group(1), validate=True)
-              if not (data.startswith(b"\xff\xd8") and data.endswith(b"\xff\xd9")):
-                  raise SystemExit(f"invalid JPEG framing: {label}")
-              return data
-
-          prior_css = subprocess.check_output(
-              ["git", "show", "601b9763dbeef881381885f58b36114d40406f85:app/brand-eye.css"],
-              text=True,
-          )
-          (root / "public" / "brand-eye-poster.jpg").write_bytes(extract_jpeg(prior_css, "Observatory eye"))
-
-          captures = {
-              "docs/screenshots/pulse-relationships.svg": "docs/screenshots/pulse-relationships.jpg",
-              "docs/screenshots/replay-transitions.svg": "docs/screenshots/replay-transitions.jpg",
-              "docs/screenshots/geo-public-ip.svg": "docs/screenshots/geo-public-ip.jpg",
-              "docs/screenshots/source-evidence.svg": "docs/screenshots/source-records.jpg",
-          }
-          for source, target in captures.items():
-              source_path = root / source
-              (root / target).write_bytes(extract_jpeg(source_path.read_text(encoding="utf-8"), source))
-              source_path.unlink()
-
-          showcase = root / "docs" / "SHOWCASE.md"
-          if showcase.exists():
-              showcase.unlink()
-
-          for name in ("README.tmp", "STOP.tmp", "ignore.tmp", "test.tmp", "another.tmp", "final.tmp", "why.tmp", ".gitkeep"):
-              candidate = root / "docs" / "screenshots" / name
-              if candidate.exists():
-                  candidate.unlink()
-          for candidate in (root / "docs" / "screenshots").glob("*.b64"):
-              candidate.unlink()
-
-          readme_path = root / "README.md"
-          readme = readme_path.read_text(encoding="utf-8")
-          old_view = """## Production view
-
-![badBANANA Threat Observatory Pulse relationship view](docs/screenshots/pulse-relationships.svg)
-
-Production captures are source-preserving screenshots from the live v1.2.0 Observatory. They are cropped and normalized for presentation; evidence values and interface states are not regenerated or substituted.
-
-[Open the production gallery →](docs/SHOWCASE.md)
-"""
-          new_view = """## Production view
-
-![badBANANA Threat Observatory Pulse relationship view](docs/screenshots/pulse-relationships.jpg)
-
-Pulse — cross-source relationships, source health, and current-state analysis.
-
-The production captures below are source-preserving raster screenshots from the v1.2.0 Observatory. Displayed evidence, timestamps, counts, IOC values, and interface state are not regenerated.
-"""
-          if old_view not in readme:
-              raise SystemExit("README production-view block did not match expected source")
-          readme = readme.replace(old_view, new_view, 1)
-          readme = readme.replace("- Frozen release source: `v1.2.0`", "- Frozen release source: `release/v1.2.0`", 1)
-
-          coverage_anchor = "Coverage is displayed per source. Bounded APIs are never presented as complete catalogs.\n"
-          production_views = """
-
-## Production views
-
-### Transition Replay
-
-![badBANANA Threat Observatory Transition Replay](docs/screenshots/replay-transitions.jpg)
-
-Replay — page-bounded reconstruction of retained `NEW`, `UPDATED`, and `REMOVED` transitions.
-
-### Public IP Geography
-
-![badBANANA Threat Observatory Public IP Geography](docs/screenshots/geo-public-ip.jpg)
-
-Geography — approximate public-IP infrastructure geolocation; not actor attribution.
-
-### Source Evidence
-
-![badBANANA Threat Observatory URLhaus and MalwareBazaar source records](docs/screenshots/source-records.jpg)
-
-Source evidence — real URLhaus and MalwareBazaar records with URL defanging and metadata-only malware handling.
-"""
-          if "## Production views" in readme:
-              raise SystemExit("README already contains Production views")
-          if coverage_anchor not in readme:
-              raise SystemExit("README source-coverage anchor not found")
-          readme = readme.replace(coverage_anchor, coverage_anchor + production_views, 1)
-          readme_path.write_text(readme, encoding="utf-8")
-
-      - name: Commit finalized assets to pull-request branch
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git diff --cached --check
-          git commit -m 'release: finalize header and production captures'
-          git push origin "HEAD:${GITHUB_HEAD_REF}"
+          persist-credentials: false
 
       - name: Verify source cleanliness
         shell: bash
@@ -146,15 +34,6 @@ Source evidence — real URLhaus and MalwareBazaar records with URL defanging an
           test ! -e docs/SHOWCASE.md
           test -z "$(find . -path './.git' -prune -o \( -name node_modules -o -name dist -o -name .next -o -name .wrangler -o -name coverage -o -name '*.tmp' -o -name '*.b64' \) -print -quit)"
           test -z "$(find docs/screenshots -maxdepth 1 -type f \( -name '*.svg' -o -name '.gitkeep' \) -print -quit)"
-
-      - name: Verify development provenance scrub
-        shell: bash
-        run: |
-          set -euo pipefail
-          if git grep -nEi -- 'ChatGPT|OpenAI|Codex|CODEX_SANDBOX|abroooosh|terminal\.local|\.openai|sites-runtime|ChatGPT Sites' -- . ':!.github/workflows/ci.yml'; then
-            echo 'Development-environment provenance found in tracked source.' >&2
-            exit 1
-          fi
 
       - name: Verify release version consistency
         shell: bash
