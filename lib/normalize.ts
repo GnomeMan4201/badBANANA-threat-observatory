@@ -8,9 +8,15 @@ export function cleanString(value: unknown, maxLength = 800): string | undefined
   return cleaned ? cleaned.slice(0, maxLength) : undefined;
 }
 
+export function strictString(value: unknown, maxLength = 800): string | undefined {
+  if (typeof value !== "string") return undefined;
+  const cleaned = value.trim();
+  return cleaned && cleaned.length <= maxLength ? cleaned : undefined;
+}
+
 export function cleanSourceRecordId(value: unknown, maxLength = 80): string | undefined {
   if (typeof value === "number" && Number.isSafeInteger(value) && value >= 0) return String(value);
-  const identifier = cleanString(value, maxLength);
+  const identifier = strictString(value, maxLength);
   return identifier && /^[A-Za-z0-9._:-]+$/.test(identifier) ? identifier : undefined;
 }
 
@@ -23,7 +29,7 @@ export function cleanTags(value: unknown, max = 24): string[] {
 }
 
 export function parseTimestamp(value: unknown): string | undefined {
-  const text = cleanString(value, 64);
+  const text = strictString(value, 64);
   if (!text) return undefined;
   const calendar = parseCalendarDate(text);
   if (calendar) return calendar;
@@ -59,7 +65,7 @@ export function parseTimestamp(value: unknown): string | undefined {
 }
 
 export function parseCalendarDate(value: unknown): string | undefined {
-  const text = cleanString(value, 64);
+  const text = strictString(value, 64);
   const match = text?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (!match || !validCalendarParts(Number(match[1]), Number(match[2]), Number(match[3]))) return undefined;
   return `${match[1]}-${match[2]}-${match[3]}T00:00:00.000Z`;
@@ -125,7 +131,7 @@ export function isSafeHttpUrl(value: string): boolean {
 }
 
 export function safeReferenceUrl(value: unknown): string | undefined {
-  const reference = cleanString(value, 2048);
+  const reference = strictString(value, 2048);
   return reference && isSafeHttpUrl(reference) ? reference : undefined;
 }
 
@@ -139,14 +145,14 @@ export function referencePolicy(value: unknown, source: string): { url?: string;
   return { url: safe, hostname, trust: firstParty ? "first-party" : "external" };
 }
 
-export function classifyIndicator(value: string, suppliedType?: string): ObservationKind {
+export function classifyIndicator(value: string, suppliedType?: string): ObservationKind | undefined {
   const type = suppliedType?.trim().toLowerCase().replace(/[_\s]+/g, "-") ?? "";
-  if (["ipv4", "ip", "ip-address"].includes(type)) return isValidIpv4(value) ? "ipv4" : "infrastructure";
-  if (type === "ipv6") return isValidIpv6(value) ? "ipv6" : "infrastructure";
-  if (["domain", "hostname", "host"].includes(type)) return isValidDomain(value) ? "domain" : "infrastructure";
-  if (["url", "uri"].includes(type)) return isSafeHttpUrl(value) ? "url" : "infrastructure";
-  if (["md5-hash", "sha1-hash", "sha256-hash", "hash"].includes(type)) return /^[a-f0-9]{32}$|^[a-f0-9]{40}$|^[a-f0-9]{64}$/i.test(value) ? "hash" : "infrastructure";
-  if (["ip:port", "ip-port"].includes(type)) return classifyIpPort(value) ?? "infrastructure";
+  if (["ipv4", "ip", "ip-address"].includes(type)) return isValidIpv4(value) ? "ipv4" : undefined;
+  if (type === "ipv6") return isValidIpv6(value) ? "ipv6" : undefined;
+  if (["domain", "hostname", "host"].includes(type)) return isValidDomain(value) ? "domain" : undefined;
+  if (["url", "uri"].includes(type)) return isSafeHttpUrl(value) ? "url" : undefined;
+  if (["md5-hash", "sha1-hash", "sha256-hash", "hash"].includes(type)) return /^[a-f0-9]{32}$|^[a-f0-9]{40}$|^[a-f0-9]{64}$/i.test(value) ? "hash" : undefined;
+  if (["ip:port", "ip-port"].includes(type)) return classifyIpPort(value);
   if (isValidIpv4(value)) return "ipv4";
   if (isValidIpv6(value)) return "ipv6";
   if (isSafeHttpUrl(value)) return "url";
@@ -176,7 +182,7 @@ export function validateNormalizedObservation(value: unknown): value is Normaliz
   if (!value || typeof value !== "object") return false;
   const record = value as Partial<NormalizedObservation>;
   return Boolean(
-    cleanString(record.id, 300) && cleanString(record.source, 80) && record.kind && KINDS.has(record.kind) &&
+    strictString(record.id, 300) && strictString(record.source, 80) && record.kind && KINDS.has(record.kind) &&
     parseTimestamp(record.observedAt) && parseTimestamp(record.ingestedAt) && Array.isArray(record.tags) &&
     record.tags.every((tag) => typeof tag === "string" && tag.length <= 80) && record.metadata && typeof record.metadata === "object" &&
     (!record.reference || isSafeHttpUrl(record.reference))

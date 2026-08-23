@@ -66,18 +66,27 @@ function toCsv(records: NormalizedObservation[]): string {
   return [columns.join(","), ...records.map((record) => columns.map((column) => csv(record[column])).join(","))].join("\n");
 }
 
-function csv(value: unknown): string { const text = value === undefined ? "" : String(value); return `"${text.replace(/"/g, '""')}"`; }
+function spreadsheetSafe(value: unknown): string {
+  const text = value === undefined ? "" : String(value);
+  return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+}
+
+function csv(value: unknown): string {
+  const text = spreadsheetSafe(value);
+  return `"${text.replace(/"/g, '""')}"`;
+}
 
 function toDefanged(records: NormalizedObservation[], policy: ExportPolicy, generatedAt: string): string {
-  return [`# badBANANA current-state export`, `# generated ${generatedAt}`, `# policy ${JSON.stringify(policy)}`, `# confidence remains absent where the source did not provide it`, ...records.map((record) => `${record.kind === "url" ? defangUrl(record.indicator ?? record.id) : (record.indicator ?? record.id)}\t${record.source}\tconfidence=${record.confidence ?? "not-provided"}`)].join("\n");
+  return [`# badBANANA current-state export`, `# generated ${generatedAt}`, `# policy ${JSON.stringify(policy)}`, `# confidence remains absent where the source did not provide it`, ...records.map((record) => [record.kind === "url" ? defangUrl(record.indicator ?? record.id) : (record.indicator ?? record.id), record.source, `confidence=${record.confidence ?? "not-provided"}`].map(spreadsheetSafe).join("\t"))].join("\n");
 }
 
 function toStix(records: NormalizedObservation[], generatedAt: string) {
-  const objects = records.flatMap((record) => stixObject(record) ? [stixObject(record)!] : []);
-  const omissions = records.filter((record) => !stixObject(record)).map((record) => ({ id: record.id, reason: "UNSUPPORTED_STIX_REPRESENTATION" as const }));
+  const rendered = records.map((record) => ({ record, object: stixObject(record) }));
+  const objects = rendered.flatMap(({ object }) => object ? [object] : []);
+  const omissions = rendered.filter(({ object }) => !object).map(({ record }) => ({ id: record.id, reason: "UNSUPPORTED_STIX_REPRESENTATION" as const }));
   return { bundle: {
     type: "bundle",
-    id: `bundle--${stableUuid(`bundle:${generatedAt}`)}`,
+    id: `bundle--${crypto.randomUUID()}`,
     objects,
     x_badbanana_export: { selected_records: records.length, emitted_objects: objects.length, omitted_records: omissions.length, omissions },
   }, omissions };
@@ -94,11 +103,11 @@ function stixObject(record: NormalizedObservation): Record<string, unknown> | un
     x_badbanana_record_hash: record.recordHash,
   };
   if (record.kind === "vulnerability" && record.indicator && /^CVE-\d{4}-\d{4,}$/i.test(record.indicator)) {
-    return { ...common, type: "vulnerability", id: `vulnerability--${stableUuid(record.id)}`, name: record.indicator.toUpperCase(), description: record.title };
+    return { ...common, type: "vulnerability", id: `vulnerability--${crypto.randomUUID()}`, name: record.indicator.toUpperCase(), description: record.title };
   }
   const pattern = stixPattern(record);
   if (!pattern) return undefined;
-  return { ...common, type: "indicator", id: `indicator--${stableUuid(record.id)}`, name: record.title ?? record.malwareFamily ?? record.indicator ?? record.id, pattern_type: "stix", pattern, valid_from: record.observedAt, labels: [record.source, record.kind], confidence: record.confidence };
+  return { ...common, type: "indicator", id: `indicator--${crypto.randomUUID()}`, name: record.title ?? record.malwareFamily ?? record.indicator ?? record.id, pattern_type: "stix", pattern, valid_from: record.observedAt, labels: [record.source, record.kind], confidence: record.confidence };
 }
 
 function stixPattern(record: NormalizedObservation): string | undefined {
@@ -110,13 +119,6 @@ function stixPattern(record: NormalizedObservation): string | undefined {
   if (record.kind === "url") return `[url:value = '${value}']`;
   if (record.kind === "hash" || (record.kind === "malware" && /^[a-f0-9]{32}$|^[a-f0-9]{40}$|^[a-f0-9]{64}$/i.test(record.indicator ?? ""))) return `[file:hashes.'${value.length === 32 ? "MD5" : value.length === 40 ? "SHA-1" : "SHA-256"}' = '${value}']`;
   return undefined;
-}
-
-function stableUuid(input: string): string {
-  let hash = 2166136261;
-  for (let index = 0; index < input.length; index += 1) hash = Math.imul(hash ^ input.charCodeAt(index), 16777619);
-  const hex = (hash >>> 0).toString(16).padStart(8, "0");
-  return `${hex}${hex.slice(0, 0)}-0000-4000-8000-${hex}${hex.slice(0, 4)}`;
 }
 
 function artifact(filename: string, mimeType: string, content: string, selectedRecords: number, records: number, omissions: ExportArtifact["omissions"]): ExportArtifact {

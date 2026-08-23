@@ -86,6 +86,17 @@ test("export policy never converts absent confidence into a value", () => {
   assert.doesNotMatch(artifact.content, /"confidence":0/);
 });
 
+test("spreadsheet exports neutralize formula-capable leading characters", () => {
+  const policy = { schemaVersion: 1, window: "24h", sources: ["urlhaus"], includeWithoutConfidence: true, currentStateOnly: true, preserveDisputes: true };
+  const malicious = { ...record, id: "=1+1", sourceRecordId: "+SUM(A1:A2)", indicator: "@cmd" };
+  const csv = buildExport([malicious], policy, "csv", "2026-08-21T12:00:00.000Z").content;
+  assert.match(csv, /"'=1\+1"/);
+  assert.match(csv, /"'\+SUM\(A1:A2\)"/);
+  assert.match(csv, /"'@cmd"/);
+  const defanged = buildExport([malicious], policy, "defanged", "2026-08-21T12:00:00.000Z").content;
+  assert.match(defanged, /'@cmd/);
+});
+
 test("defanged export is copy-safe while STIX retains the validated raw observable", () => {
   const policy = { schemaVersion: 1, window: "24h", sources: ["urlhaus"], includeWithoutConfidence: true, currentStateOnly: true, preserveDisputes: true };
   assert.match(buildExport([record], policy, "defanged", "2026-08-21T12:00:00.000Z").content, /hxxps:\/\/bad\[\.\]example/);
@@ -111,4 +122,5 @@ test("STIX represents CISA vulnerabilities and MalwareBazaar hashes without fals
   assert.equal(bundle.x_badbanana_export.omitted_records, 1);
   assert.ok(bundle.objects.some((object) => object.type === "vulnerability"));
   assert.ok(bundle.objects.some((object) => object.pattern?.includes("SHA-256")));
+  assert.match(bundle.id, /^bundle--[0-9a-f-]{36}$/i);
 });

@@ -12,14 +12,35 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Verify source cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e .env
+          test ! -e .env.local
+          test ! -e .env.production
+          test ! -e .env.development
+          test ! -e .dev.vars
+          if grep -aEq 'Exif|Photoshop 3\.0' public/brand-badbanana-poster.jpg; then
+            echo 'Public poster contains removable EXIF/Photoshop metadata.' >&2
+            exit 1
+          fi
+          if git grep -nE -- '-----BEGIN (RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{32,}' -- ':!package-lock.json'; then
+            echo 'Potential high-confidence secret material found in tracked source.' >&2
+            exit 1
+          fi
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22.13.0
           cache: npm
@@ -27,14 +48,42 @@ jobs:
       - name: Clean install
         run: npm ci
 
+      - name: Audit all dependencies
+        run: npm audit --audit-level=high
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
       - name: Lint
         run: npm run lint
 
       - name: Production build and complete test suite
         run: npm test
 
+      - name: Verify client bundle credential isolation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d dist/client
+          test -n "$(find dist/client -type f -print -quit)"
+          if grep -RInE -- 'THREATFOX_AUTH_KEY|URLHAUS_AUTH_KEY|MALWAREBAZAAR_AUTH_KEY|CLOUDFLARE_API_TOKEN|CLOUDFLARE_ACCOUNT_ID' dist/client; then
+            echo 'Server-only credential name leaked into client bundle.' >&2
+            exit 1
+          fi
+
       - name: Deploy to Cloudflare Workers
         run: npm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Verify production security headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          headers=$(curl --fail --silent --show-error --dump-header - --output /dev/null https://badbanana-threat-observatory.badbanana6969.workers.dev/)
+          grep -qi '^content-security-policy:' <<< "$headers"
+          grep -qi '^x-content-type-options:[[:space:]]*nosniff' <<< "$headers"
+          grep -qi '^referrer-policy:[[:space:]]*no-referrer' <<< "$headers"
+          grep -qi '^x-frame-options:[[:space:]]*DENY' <<< "$headers"
+          grep -qi '^permissions-policy:' <<< "$headers"

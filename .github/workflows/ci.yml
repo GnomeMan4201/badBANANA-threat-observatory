@@ -18,7 +18,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
 
@@ -34,6 +34,10 @@ jobs:
           test ! -e docs/SHOWCASE.md
           test -z "$(find . -path './.git' -prune -o \( -name node_modules -o -name dist -o -name .next -o -name .wrangler -o -name coverage -o -name '*.tmp' -o -name '*.b64' \) -print -quit)"
           test -z "$(find docs/screenshots -maxdepth 1 -type f \( -name '*.svg' -o -name '.gitkeep' \) -print -quit)"
+          if grep -aEq 'Exif|Photoshop 3\.0' public/brand-badbanana-poster.jpg; then
+            echo 'Public poster contains removable EXIF/Photoshop metadata.' >&2
+            exit 1
+          fi
 
       - name: Verify release version consistency
         shell: bash
@@ -56,7 +60,7 @@ jobs:
           fi
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22.13.0
           cache: npm

@@ -1,19 +1,19 @@
-import { cleanString, parseTimestamp } from "../normalize.ts";
+import { cleanString, parseTimestamp, strictString } from "../normalize.ts";
 import type { NormalizedObservation } from "../threat-types";
 
 export function normalizeCisaKev(raw: unknown, ingestedAt: string): NormalizedObservation | null {
   if (!raw || typeof raw !== "object") return null;
   const source = raw as Record<string, unknown>;
-  const cveId = cleanString(source.cveID, 24);
-  const vendor = cleanString(source.vendorProject, 160);
-  const product = cleanString(source.product, 160);
-  const title = cleanString(source.vulnerabilityName, 400);
+  const cveId = strictString(source.cveID, 24);
+  const vendor = strictString(source.vendorProject, 160);
+  const product = strictString(source.product, 160);
+  const title = strictString(source.vulnerabilityName, 400);
   const observedAt = parseTimestamp(source.dateAdded);
-  const dueDateInput = cleanString(source.dueDate, 64);
+  const dueDateInput = strictString(source.dueDate, 64);
   const dueDate = dueDateInput ? parseTimestamp(dueDateInput) : undefined;
-  const requiredAction = cleanString(source.requiredAction, 800);
+  const requiredAction = strictString(source.requiredAction, 800);
   if (!cveId || !/^CVE-\d{4}-\d{4,}$/.test(cveId) || !vendor || !product || !title || !observedAt || (dueDateInput && !dueDate) || !requiredAction) return null;
-  const ransomware = cleanString(source.knownRansomwareCampaignUse, 40);
+  const ransomware = strictString(source.knownRansomwareCampaignUse, 40);
   return {
     id: `cisa-kev:${cveId}`,
     source: "cisa-kev",
