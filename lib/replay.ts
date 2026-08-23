@@ -1,5 +1,5 @@
 import type { NormalizedObservation, ObservationEvent } from "./threat-types";
-import { defangUrl } from "./normalize";
+import { defangUrl } from "./normalize.ts";
 
 export interface ReplayEntity {
   observationId: string;
