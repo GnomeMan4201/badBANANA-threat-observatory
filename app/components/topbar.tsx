@@ -16,7 +16,7 @@ export function Topbar({ now, query, dataState, searchEnabled = true, compact = 
     <header className={`topbar ${searchEnabled ? "" : "noSearch"} ${compact ? "compact" : ""}`}>
       <button className="brand" onClick={onHome} aria-label="Open device briefing">
         <span className="sigil" aria-hidden="true">
-          <img className="sigilArtwork" src="/brand-eye-poster.jpg" alt="" decoding="async" />
+          <img className="sigilArtwork" src="/brand-eye.gif" alt="" decoding="async" />
         </span>
         <span><b>badBANANA</b><small>THREAT OBSERVATORY</small></span>
       </button>
