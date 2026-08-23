@@ -67,14 +67,20 @@ test("mobile evidence cards expose long hashes, explicit absence, and reversible
   assert.match(views, /PAGE \{page\} · TOTAL PAGES UNKNOWN/);
 });
 
-test("application chrome contains no decorative animated media", async () => {
-  const [topbar, views, css] = await Promise.all([
+test("brand animation is confined to the mark and honors reduced motion", async () => {
+  const [topbar, views, brandCss] = await Promise.all([
     readFile(new URL("../app/components/topbar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/observation-views.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../app/brand-eye.css", import.meta.url), "utf8"),
   ]);
-  assert.doesNotMatch(topbar, /topbarEye|<video|<img/);
-  assert.doesNotMatch(css, /topbarEye|brand-eye-loop/);
+  assert.match(topbar, /className="sigilMotion"/);
+  assert.match(topbar, /autoPlay/);
+  assert.match(topbar, /muted/);
+  assert.match(topbar, /loop/);
+  assert.match(topbar, /playsInline/);
+  assert.match(topbar, /poster="\/brand-eye-poster\.jpg"/);
+  assert.match(brandCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*\.sigilMotion\{display:none\}/);
+  assert.doesNotMatch(views, /<video|brand-eye-loop/);
   assert.match(views, /mode === "relationships" \? <RelationshipField/);
 });
 
