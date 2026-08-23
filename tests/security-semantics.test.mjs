@@ -19,9 +19,9 @@ test("strict IPv4 validation rejects invalid octets and ambiguous formatting", (
   assert.equal(isValidIpv4("01.2.3.4"), false);
 });
 
-test("IPv6 classification rejects arbitrary colon-containing input", () => {
+test("typed IPv6 classification fails closed for invalid supplied evidence", () => {
   assert.equal(isValidIpv6("2001:db8::1"), true);
-  assert.equal(classifyIndicator("not:an:address", "ipv6"), "infrastructure");
+  assert.equal(classifyIndicator("not:an:address", "ipv6"), undefined);
   assert.equal(isValidIpv6("http:thing"), false);
 });
 
