@@ -31,7 +31,9 @@ jobs:
           test ! -e .env.production
           test ! -e .env.development
           test ! -e .dev.vars
-          test -z "$(find . -path './.git' -prune -o \( -name node_modules -o -name dist -o -name .next -o -name .wrangler -o -name coverage \) -print -quit)"
+          test ! -e docs/SHOWCASE.md
+          test -z "$(find . -path './.git' -prune -o \( -name node_modules -o -name dist -o -name .next -o -name .wrangler -o -name coverage -o -name '*.tmp' -o -name '*.b64' \) -print -quit)"
+          test -z "$(find docs/screenshots -maxdepth 1 -type f \( -name '*.svg' -o -name '.gitkeep' \) -print -quit)"
 
       - name: Verify release version consistency
         shell: bash
@@ -80,3 +82,7 @@ jobs:
           set -euo pipefail
           test -d dist/client
           test -n "$(find dist/client -type f -print -quit)"
+          if grep -RInE -- 'THREATFOX_AUTH_KEY|URLHAUS_AUTH_KEY|MALWAREBAZAAR_AUTH_KEY|CLOUDFLARE_API_TOKEN|CLOUDFLARE_ACCOUNT_ID' dist/client; then
+            echo 'Server-only credential name leaked into client bundle.' >&2
+            exit 1
+          fi

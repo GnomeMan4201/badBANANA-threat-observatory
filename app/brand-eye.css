@@ -13,24 +13,15 @@
 }
 .sigil:before,.sigil:after,.sigil i{display:none!important}
 .sigilArtwork{
-  position:absolute;
-  inset:0;
-  background-image:var(--observatory-eye);
-  background-position:center;
-  background-size:cover;
-  transform:scale(1.01);
-  animation:eyeBreathe 6s ease-in-out infinite;
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
 }
-.sigilGlow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 50%,transparent 48%,#9ddcff1c 100%);animation:eyeGlow 3.5s ease-in-out infinite}
-.sigilScan{position:absolute;top:-10%;bottom:-10%;width:28%;left:-38%;pointer-events:none;background:linear-gradient(90deg,transparent,#ffffff20,transparent);transform:skewX(-12deg);animation:eyeScan 7s linear infinite}
 .brand{gap:18px}
 .brand b{font-size:19px}
 .brand small{font-size:9px;line-height:1.35}
 .topbar{min-height:96px}
-@keyframes eyeBreathe{0%,100%{transform:scale(1.01);filter:saturate(1)}50%{transform:scale(1.035);filter:saturate(1.08)}}
-@keyframes eyeGlow{0%,100%{opacity:.4}50%{opacity:.9}}
-@keyframes eyeScan{0%{left:-38%}100%{left:120%}}
 @media(max-width:900px){.sigil{width:68px;height:68px;flex-basis:68px}.topbar{min-height:88px}}
 @media(max-width:700px){.sigil{width:64px;height:64px;flex-basis:64px}.brand{gap:12px}.brand b{font-size:17px}}
 @media(max-width:560px){.sigil{width:60px;height:60px;flex-basis:60px}.brand b{font-size:16px}.brand small{font-size:8px}}
-@media(prefers-reduced-motion:reduce){.sigilArtwork,.sigilGlow,.sigilScan{animation:none!important}.sigilScan{display:none}}
