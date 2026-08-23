@@ -16,18 +16,9 @@ export function Topbar({ now, query, dataState, searchEnabled = true, compact = 
     <header className={`topbar ${searchEnabled ? "" : "noSearch"} ${compact ? "compact" : ""}`}>
       <button className="brand" onClick={onHome} aria-label="Open device briefing">
         <span className="sigil" aria-hidden="true">
-          <img className="sigilStatic" src="/brand-eye-poster.jpg" alt="" draggable={false} decoding="async" />
-          <video
-            className="sigilMotion"
-            src="/brand-eye-loop.mp4"
-            poster="/brand-eye-poster.jpg"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            tabIndex={-1}
-          />
+          <span className="sigilArtwork" />
+          <span className="sigilGlow" />
+          <span className="sigilScan" />
         </span>
         <span><b>badBANANA</b><small>THREAT OBSERVATORY</small></span>
       </button>
