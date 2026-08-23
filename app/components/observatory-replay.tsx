@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import type { NormalizedObservation, ObservationEvent } from "../../lib/threat-types";
-import { buildReplayFrame, orderReplayEvents, replaySourceOrder } from "../../lib/replay";
+import { buildReplayFrame, orderReplayEvents, replayIndicator, replaySourceOrder } from "../../lib/replay";
 import { formatTimestamp } from "./observatory-format";
 
 const SPEEDS = [0.5, 1, 2, 4] as const;
@@ -60,7 +60,7 @@ export function ObservatoryReplay({ events, pageBounded, onSelect }: { events: O
         <time>{formatTimestamp(active.detectedAt)}</time>
         <strong>{active.eventType.toUpperCase()}</strong>
         <small>{active.source}</small>
-        <code>{indicator(active)}</code>
+        <code>{replayIndicator(active)}</code>
         <dl><dt>CHANGED FIELDS</dt><dd>{active.diff.length ? active.diff.map((item) => item.field).join(" · ") : active.eventType === "new" ? "NEW SOURCE RECORD" : "NO LONGER PRESENT"}</dd><dt>VISIBLE REPLAY STATE</dt><dd>{frame.filter((entity) => entity.state === "present").length} PRESENT · {frame.filter((entity) => entity.state === "removed").length} REMOVED</dd></dl>
         {(active.current ?? active.previous) && <button onClick={() => onSelect((active.current ?? active.previous) as NormalizedObservation)}>INSPECT EVIDENCE RECORD</button>}
       </aside>
@@ -76,9 +76,4 @@ export function ObservatoryReplay({ events, pageBounded, onSelect }: { events: O
     </div>
     <footer className="replayFoot"><span>{pageBounded ? `${ordered.length} EVENTS SHOWN · MORE RETAINED` : `${ordered.length} EVENTS SHOWN`}</span><b>Motion represents ledger transitions only. It does not represent network traffic volume.</b></footer>
   </section>;
-}
-
-function indicator(event: ObservationEvent): string {
-  const record = event.current ?? event.previous;
-  return record?.indicator ?? record?.title ?? record?.sourceRecordId ?? event.observationId;
 }
