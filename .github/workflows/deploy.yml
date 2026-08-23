@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -38,3 +40,14 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Verify production security headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          headers=$(curl --fail --silent --show-error --dump-header - --output /dev/null https://badbanana-threat-observatory.badbanana6969.workers.dev/)
+          grep -qi '^content-security-policy:' <<< "$headers"
+          grep -qi '^x-content-type-options:[[:space:]]*nosniff' <<< "$headers"
+          grep -qi '^referrer-policy:[[:space:]]*no-referrer' <<< "$headers"
+          grep -qi '^x-frame-options:[[:space:]]*DENY' <<< "$headers"
+          grep -qi '^permissions-policy:' <<< "$headers"
