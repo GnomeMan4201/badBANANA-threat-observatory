@@ -1,0 +1,11 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { correlate, filterByWindow, filterCrossSourceCorrelationRecords, formatCorrelationCount, matchesSearch } from "../lib/analysis.ts";
+import { defangUrl } from "../lib/normalize.ts";
+const base={kind:"domain",indicator:"same.example",indicatorType:"domain",observedAt:"2026-08-21T00:00:00.000Z",ingestedAt:"2026-08-21T00:00:00.000Z",tags:["tag-one"],metadata:{},title:"Signal"};
+test("time filtering uses one canonical policy",()=>{const records=[{...base,id:"new",source:"a"},{...base,id:"old",source:"a",observedAt:"2026-08-19T00:00:00.000Z"}];assert.deepEqual(filterByWindow(records,"24h",Date.parse("2026-08-21T01:00:00Z")).map(r=>r.id),["new"])});
+test("correlation preserves independent source records",()=>{const records=[{...base,id:"a:1",source:"a"},{...base,id:"b:1",source:"b"}];const result=correlate(records);assert.equal(result.length,1);assert.deepEqual(result[0].observationIds,["a:1","b:1"])});
+test("same-source duplicates are not correlation candidates",()=>{const records=[{...base,id:"a:1",source:"a"},{...base,id:"a:2",source:"a"}];assert.deepEqual(filterCrossSourceCorrelationRecords(records),[]);assert.deepEqual(correlate(records),[])});
+test("cross-source candidates and bounded labels preserve uncertainty",()=>{const records=[{...base,id:"a:1",source:"a"},{...base,id:"b:1",source:"b"}];assert.equal(filterCrossSourceCorrelationRecords(records).length,2);assert.equal(formatCorrelationCount(37,false),"37");assert.equal(formatCorrelationCount(37,true),"≥37 · QUERY BOUNDED")});
+test("search covers indicators, families, tags and metadata",()=>{assert.equal(matchesSearch({...base,id:"a",source:"a",malwareFamily:"ExampleFamily"},"examplefamily"),true);assert.equal(matchesSearch({...base,id:"a",source:"a"},"tag-one"),true)});
+test("URL defanging preserves copyable raw input separately",()=>{const raw="https://bad.example/x";assert.equal(defangUrl(raw),"hxxps://bad[.]example/x");assert.equal(raw,"https://bad.example/x")});

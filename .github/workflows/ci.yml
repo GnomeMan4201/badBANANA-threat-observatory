@@ -1,0 +1,82 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  release-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Verify source cleanliness
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e .env
+          test ! -e .env.local
+          test ! -e .env.production
+          test ! -e .env.development
+          test ! -e .dev.vars
+          test -z "$(find . -path './.git' -prune -o \( -name node_modules -o -name dist -o -name .next -o -name .wrangler -o -name coverage \) -print -quit)"
+
+      - name: Verify release version consistency
+        shell: bash
+        run: |
+          set -euo pipefail
+          package_version=$(node -p "require('./package.json').version")
+          lock_version=$(node -p "require('./package-lock.json').version")
+          test "$package_version" = "$lock_version"
+          grep -Fq "$package_version" README.md
+          grep -Fq "$package_version" CHANGELOG.md
+          printf 'release version: %s\n' "$package_version"
+
+      - name: Scan source for high-confidence secret material
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git grep -nE -- '-----BEGIN (RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{30,}|github_pat_[A-Za-z0-9_]{20,}|sk-[A-Za-z0-9_-]{32,}' -- ':!package-lock.json'; then
+            echo 'Potential high-confidence secret material found in tracked source.' >&2
+            exit 1
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.13.0
+          cache: npm
+
+      - name: Clean install
+        run: npm ci
+
+      - name: Audit all dependencies
+        run: npm audit --audit-level=high
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Production build and complete test suite
+        run: npm test
+
+      - name: Verify client bundle exists after test build
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -d dist/client
+          test -n "$(find dist/client -type f -print -quit)"

@@ -1,0 +1,15 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "badbanana-threat-observatory",
+  "main": "vinext/server/app-router-entry",
+  "compatibility_date": "2026-08-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
