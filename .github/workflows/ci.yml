@@ -21,6 +21,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           persist-credentials: false
+          fetch-depth: 0
 
       - name: Verify source cleanliness
         shell: bash
@@ -92,7 +93,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          git fetch --no-tags --depth=1 https://github.com/${{ github.repository }} 0a1b9214124de47071281bf8d3be584c3d869e92
+          git cat-file -e 0a1b9214124de47071281bf8d3be584c3d869e92^{commit}
           git archive --format=zip --output=badBANANA-threat-observatory-main-0a1b9214.zip 0a1b9214124de47071281bf8d3be584c3d869e92
 
       - name: Upload authoritative review source
