@@ -29,15 +29,13 @@ export function checkRateLimit(request: Request): RateLimitResult {
   return checkBucket(request, buckets, MAX_REQUESTS);
 }
 
-export async function checkIngestRateLimit(request: Request, database?: D1Database): Promise<RateLimitResult> {
+export function checkIngestRateLimit(request: Request, database?: D1Database): RateLimitResult | Promise<RateLimitResult> {
   if (!database) return checkBucket(request, ingestionBuckets, MAX_INGEST_REQUESTS);
-  try {
-    return await checkD1Bucket(request, database, MAX_INGEST_REQUESTS);
-  } catch {
+  return checkD1Bucket(request, database, MAX_INGEST_REQUESTS).catch(() => {
     // Availability takes precedence over overstating the control: if D1 cannot service
     // the shared counter, fall back explicitly to the documented isolate-local bucket.
     return checkBucket(request, ingestionBuckets, MAX_INGEST_REQUESTS);
-  }
+  });
 }
 
 export function checkGeoRateLimit(request: Request): RateLimitResult {
