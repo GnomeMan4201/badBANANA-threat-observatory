@@ -4,11 +4,17 @@ An evidence-first threat-observation system that keeps current source state, mat
 
 The current release hardens evidence dates and device-local acknowledgement state, makes all important read failures visibly distinct from successful zero-result states, stabilizes correlation requests, and strengthens the evidence drawer, bounded investigation filters, source interpretation, mobile controls, and export accounting. Every animated replay mark still corresponds to a retained `NEW`, `UPDATED`, or `REMOVED` event; it is not decorative network traffic.
 
-## Production view
+## Production views
 
 ![badBANANA Threat Observatory Pulse relationship view](docs/screenshots/pulse-relationships.webp)
 
 Pulse — cross-source relationships, source health, and current-state analysis.
+
+![badBANANA Threat Observatory Transition Replay](docs/screenshots/replay-transitions.webp)
+
+Replay — page-bounded reconstruction of retained `NEW`, `UPDATED`, and `REMOVED` transitions.
+
+Additional live surfaces include approximate public-IP infrastructure geography and first-party URLhaus / MalwareBazaar evidence views. Those surfaces are intentionally not represented by placeholder or duplicated screenshots in this README.
 
 Production captures are source-preserving screenshots from the live v1.2.0 Observatory. They are cropped and resized/compressed for presentation; displayed evidence, timestamps, counts, IOC values, and interface states are not regenerated or substituted.
 
@@ -66,26 +72,6 @@ None of those GET routes calls a source adapter. If this project later gains a g
 | MalwareBazaar | `MALWAREBAZAAR_AUTH_KEY` | 15 minutes | Latest 100 metadata records returned by the endpoint |
 
 Coverage is displayed per source. Bounded APIs are never presented as complete catalogs.
-
-## Production views
-
-### Transition Replay
-
-![badBANANA Threat Observatory Transition Replay](docs/screenshots/replay-transitions.webp)
-
-Replay — page-bounded reconstruction of retained `NEW`, `UPDATED`, and `REMOVED` transitions.
-
-### Public IP Geography
-
-![badBANANA Threat Observatory Public IP Geography](docs/screenshots/geo-public-ip.webp)
-
-Geography — approximate public-IP infrastructure geolocation; not actor attribution.
-
-### Source Evidence
-
-![badBANANA Threat Observatory URLhaus and MalwareBazaar source records](docs/screenshots/source-records.webp)
-
-Source evidence — real URLhaus and MalwareBazaar records with URL defanging and metadata-only malware handling.
 
 ## Storage model
 
