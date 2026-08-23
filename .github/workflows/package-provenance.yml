@@ -19,20 +19,12 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Fetch authoritative refs
-        shell: bash
-        run: |
-          set -euo pipefail
-          git fetch --no-tags origin \
-            refs/heads/main:refs/remotes/origin/main \
-            refs/heads/release/v1.2.0:refs/remotes/origin/release-v1.2.0
-
       - name: Verify and package provenance
         shell: bash
         run: |
           set -euo pipefail
           main=$(git rev-parse refs/remotes/origin/main)
-          release=$(git rev-parse refs/remotes/origin/release-v1.2.0)
+          release=$(git rev-parse refs/remotes/origin/release/v1.2.0)
           test "$main" = "45f22e3d3ed522c3afb8d7882e7a68d0ad7919e5"
           test "$release" = "$main"
           git diff --exit-code "$main" "$release"
@@ -55,7 +47,7 @@ jobs:
           sha256sum release-provenance-45f22e3.bundle RELEASE_PROVENANCE.txt BUNDLE_VERIFY.txt > SHA256SUMS.txt
 
       - name: Upload provenance package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: badBANANA-release-provenance-45f22e3
           path: |
