@@ -67,20 +67,19 @@ test("mobile evidence cards expose long hashes, explicit absence, and reversible
   assert.match(views, /PAGE \{page\} · TOTAL PAGES UNKNOWN/);
 });
 
-test("brand animation is confined to the mark and honors reduced motion", async () => {
+test("brand animation is confined to the eye mark and honors reduced motion", async () => {
   const [topbar, views, brandCss] = await Promise.all([
     readFile(new URL("../app/components/topbar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/observation-views.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/brand-eye.css", import.meta.url), "utf8"),
   ]);
-  assert.match(topbar, /className="sigilMotion"/);
-  assert.match(topbar, /autoPlay/);
-  assert.match(topbar, /muted/);
-  assert.match(topbar, /loop/);
-  assert.match(topbar, /playsInline/);
-  assert.match(topbar, /poster="\/brand-eye-poster\.jpg"/);
-  assert.match(brandCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*\.sigilMotion\{display:none\}/);
-  assert.doesNotMatch(views, /<video|brand-eye-loop/);
+  assert.match(topbar, /className="sigilArtwork"/);
+  assert.match(topbar, /className="sigilGlow"/);
+  assert.match(topbar, /className="sigilScan"/);
+  assert.match(brandCss, /@keyframes eyeBreathe/);
+  assert.match(brandCss, /@keyframes eyeScan/);
+  assert.match(brandCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*animation:none!important/);
+  assert.doesNotMatch(views, /sigilArtwork|sigilScan|data:image\/jpeg;base64/);
   assert.match(views, /mode === "relationships" \? <RelationshipField/);
 });
 
