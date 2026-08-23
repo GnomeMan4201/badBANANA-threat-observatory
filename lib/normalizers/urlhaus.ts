@@ -1,11 +1,11 @@
-import { cleanSourceRecordId, cleanString, cleanTags, defangUrl, isSafeHttpUrl, parseTimestamp, safeReferenceUrl } from "../normalize.ts";
+import { cleanSourceRecordId, cleanString, cleanTags, defangUrl, isSafeHttpUrl, parseTimestamp, safeReferenceUrl, strictString } from "../normalize.ts";
 import type { NormalizedObservation } from "../threat-types";
 
 export function normalizeUrlHaus(raw: unknown, ingestedAt: string): NormalizedObservation | null {
   if (!raw || typeof raw !== "object") return null;
   const source = raw as Record<string, unknown>;
   const sourceRecordId = cleanSourceRecordId(source.id);
-  const indicator = cleanString(source.url, 4096);
+  const indicator = strictString(source.url, 4096);
   const observedAt = parseTimestamp(source.date_added);
   if (!sourceRecordId || !indicator || !isSafeHttpUrl(indicator) || !observedAt) return null;
   return {
