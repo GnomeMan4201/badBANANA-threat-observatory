@@ -1,6 +1,18 @@
 import { classifyIndicator, cleanSourceRecordId, cleanString, cleanTags, parseTimestamp, safeReferenceUrl, strictString } from "../normalize.ts";
 import type { NormalizedObservation } from "../threat-types";
 
+const THREATFOX_IOC_TYPES = new Set([
+  "ipv4", "ip", "ip-address", "ipv6",
+  "domain", "hostname", "host",
+  "url", "uri",
+  "md5-hash", "sha1-hash", "sha256-hash", "hash",
+  "ip:port", "ip-port",
+]);
+
+function canonicalIocType(value: string): string {
+  return value.trim().toLowerCase().replace(/[_\s]+/g, "-");
+}
+
 export function normalizeThreatFox(raw: unknown, ingestedAt: string): NormalizedObservation | null {
   if (!raw || typeof raw !== "object") return null;
   const source = raw as Record<string, unknown>;
@@ -9,6 +21,7 @@ export function normalizeThreatFox(raw: unknown, ingestedAt: string): Normalized
   const indicatorType = strictString(source.ioc_type, 80);
   const observedAt = parseTimestamp(source.first_seen);
   if (!sourceRecordId || !indicator || !indicatorType || !observedAt) return null;
+  if (!THREATFOX_IOC_TYPES.has(canonicalIocType(indicatorType))) return null;
   const kind = classifyIndicator(indicator, indicatorType);
   if (!kind) return null;
   const confidence = typeof source.confidence_level === "number" && source.confidence_level >= 0 && source.confidence_level <= 100 ? source.confidence_level : undefined;
