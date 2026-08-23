@@ -6,17 +6,17 @@ The current release hardens evidence dates and device-local acknowledgement stat
 
 ## Production view
 
-![badBANANA Threat Observatory Pulse relationship view](docs/screenshots/pulse-relationships.svg)
+![badBANANA Threat Observatory Pulse relationship view](docs/screenshots/pulse-relationships.webp)
 
-Production captures are source-preserving screenshots from the live v1.2.0 Observatory. They are cropped and normalized for presentation; evidence values and interface states are not regenerated or substituted.
+Pulse — cross-source relationships, source health, and current-state analysis.
 
-[Open the production gallery →](docs/SHOWCASE.md)
+Production captures are source-preserving screenshots from the live v1.2.0 Observatory. They are cropped and resized/compressed for presentation; displayed evidence, timestamps, counts, IOC values, and interface states are not regenerated or substituted.
 
 ## Live deployment
 
 - Production: https://badbanana-threat-observatory.badbanana6969.workers.dev
 - Latest release: https://github.com/GnomeMan4201/badBANANA-threat-observatory/releases/tag/v1.2.0
-- Frozen release source: `v1.2.0`
+- Frozen release source: `release/v1.2.0`
 
 The production Worker is backed by Cloudflare D1. Feed credentials remain server-only Cloudflare Worker secrets and are never required in the browser.
 
@@ -66,6 +66,26 @@ None of those GET routes calls a source adapter. If this project later gains a g
 | MalwareBazaar | `MALWAREBAZAAR_AUTH_KEY` | 15 minutes | Latest 100 metadata records returned by the endpoint |
 
 Coverage is displayed per source. Bounded APIs are never presented as complete catalogs.
+
+## Production views
+
+### Transition Replay
+
+![badBANANA Threat Observatory Transition Replay](docs/screenshots/replay-transitions.webp)
+
+Replay — page-bounded reconstruction of retained `NEW`, `UPDATED`, and `REMOVED` transitions.
+
+### Public IP Geography
+
+![badBANANA Threat Observatory Public IP Geography](docs/screenshots/geo-public-ip.webp)
+
+Geography — approximate public-IP infrastructure geolocation; not actor attribution.
+
+### Source Evidence
+
+![badBANANA Threat Observatory URLhaus and MalwareBazaar source records](docs/screenshots/source-records.webp)
+
+Source evidence — real URLhaus and MalwareBazaar records with URL defanging and metadata-only malware handling.
 
 ## Storage model
 
