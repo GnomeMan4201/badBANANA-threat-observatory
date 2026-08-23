@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { access, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 test("source metadata and identity contain no starter branding", async () => {
@@ -10,17 +10,16 @@ test("source metadata and identity contain no starter branding", async () => {
   assert.doesNotMatch(layout + favicon, /Starter Project|#68C4FF/);
 });
 
-test("Observatory eye identity has animated and static assets", async () => {
+test("Observatory eye identity embeds the supplied artwork and honors reduced motion", async () => {
   const [topbar, css] = await Promise.all([
     readFile(new URL("../app/components/topbar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/brand-eye.css", import.meta.url), "utf8"),
   ]);
-  await Promise.all([
-    access(new URL("../public/brand-eye-loop.mp4", import.meta.url)),
-    access(new URL("../public/brand-eye-poster.jpg", import.meta.url)),
-  ]);
-  assert.match(topbar, /brand-eye-loop\.mp4/);
-  assert.match(topbar, /brand-eye-poster\.jpg/);
+  assert.match(topbar, /sigilArtwork/);
+  assert.match(topbar, /sigilGlow/);
+  assert.match(topbar, /sigilScan/);
+  assert.match(css, /data:image\/jpeg;base64/);
+  assert.match(css, /@keyframes eyeBreathe/);
   assert.match(css, /prefers-reduced-motion:reduce/);
-  assert.doesNotMatch(topbar + css, /brand-gnome-observatory/);
+  assert.doesNotMatch(topbar + css, /brand-gnome-observatory|brand-eye-loop\.mp4|brand-eye-poster\.jpg/);
 });
