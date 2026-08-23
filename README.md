@@ -25,8 +25,8 @@ Production captures are source-preserving screenshots from the live v1.2.0 Obser
 ## Live deployment
 
 - Production: https://badbanana-threat-observatory.badbanana6969.workers.dev
-- Latest release: https://github.com/GnomeMan4201/badBANANA-threat-observatory/releases/tag/v1.2.0
-- Frozen release source: `release/v1.2.0`
+- Current source: https://github.com/GnomeMan4201/badBANANA-threat-observatory/tree/main
+- Frozen v1.2.0 source: https://github.com/GnomeMan4201/badBANANA-threat-observatory/tree/release/v1.2.0
 
 The production Worker is backed by Cloudflare D1. Feed credentials remain server-only Cloudflare Worker secrets and are never required in the browser.
 
@@ -221,7 +221,6 @@ npm run lint
 ```
 
 `npm test` is the supported test entry point: it performs a full production build before the deterministic suite so artifact-level client secret isolation can inspect `dist/client`. Running `node --test` directly against a clean checkout intentionally omits that required build artifact. Tests cover strict calendar and acknowledgement timestamp parsing, optional device storage, stable correlation dependencies, normalized evidence, canonical tag hashing, material event creation, unchanged re-ingestion, previous payload preservation, last-change durability, field diffs, event retention and ledger gaps, evidence traces, empty-source export policy, STIX representation/count integrity, TTL/backoff eligibility, refresh leases, server-side scope-before-pagination wiring, dedicated GEO/Recent-KEV queries, cursor validation, read-path isolation, source coverage, external reference policy, rate-limit accuracy, source failure isolation, and client secret isolation.
-
 ## Geographic enrichment
 
 GEO mode plots only validated public IPv4/IPv6 observations. A dedicated D1 query selects eligible IP records across the requested current-state window instead of reusing the generic observations page. The response reports candidate-record totals and whether its 2,000-record safety bound was reached. Callers cannot supply arbitrary upstream destinations or IP lists. GeoJS is the fixed primary provider and FreeIPAPI is the fixed fallback; arbitrary upstream URLs are impossible. The application bounds external work through a 12-address request cap, 30-day D1 success cache, five-minute retry cache, and a dedicated route limiter. Every plotted point retains its actual provider provenance and can open its underlying local record.
