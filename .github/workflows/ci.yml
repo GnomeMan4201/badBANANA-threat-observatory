@@ -86,3 +86,20 @@ jobs:
             echo 'Server-only credential name leaked into client bundle.' >&2
             exit 1
           fi
+
+      - name: Package authoritative review source
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --depth=1 https://github.com/${{ github.repository }} 0a1b9214124de47071281bf8d3be584c3d869e92
+          git archive --format=zip --output=badBANANA-threat-observatory-main-0a1b9214.zip 0a1b9214124de47071281bf8d3be584c3d869e92
+
+      - name: Upload authoritative review source
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: badBANANA-review-source-0a1b9214
+          path: badBANANA-threat-observatory-main-0a1b9214.zip
+          if-no-files-found: error
+          retention-days: 1
