@@ -67,19 +67,19 @@ test("mobile evidence cards expose long hashes, explicit absence, and reversible
   assert.match(views, /PAGE \{page\} · TOTAL PAGES UNKNOWN/);
 });
 
-test("brand animation is confined to the eye mark and honors reduced motion", async () => {
+test("brand eye stays static, header-only, and within approved mobile sizes", async () => {
   const [topbar, views, brandCss] = await Promise.all([
     readFile(new URL("../app/components/topbar.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/components/observation-views.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/brand-eye.css", import.meta.url), "utf8"),
   ]);
-  assert.match(topbar, /className="sigilArtwork"/);
-  assert.match(topbar, /className="sigilGlow"/);
-  assert.match(topbar, /className="sigilScan"/);
-  assert.match(brandCss, /@keyframes eyeBreathe/);
-  assert.match(brandCss, /@keyframes eyeScan/);
-  assert.match(brandCss, /@media\(prefers-reduced-motion:reduce\)[\s\S]*animation:none!important/);
-  assert.doesNotMatch(views, /sigilArtwork|sigilScan|data:image\/jpeg;base64/);
+  assert.match(topbar, /src="\/brand-eye-poster\.jpg"/);
+  assert.doesNotMatch(topbar, /sigilGlow|sigilScan|<video/);
+  assert.doesNotMatch(brandCss, /@keyframes|animation:|data:image|footer/);
+  assert.match(brandCss, /@media\(max-width:900px\)\{\.sigil\{width:68px;height:68px;flex-basis:68px\}/);
+  assert.match(brandCss, /@media\(max-width:700px\)\{\.sigil\{width:64px;height:64px;flex-basis:64px\}/);
+  assert.match(brandCss, /@media\(max-width:560px\)\{\.sigil\{width:60px;height:60px;flex-basis:60px\}/);
+  assert.doesNotMatch(views, /brand-eye-poster|brand-eye-loop|sigilArtwork|sigilScan/);
   assert.match(views, /mode === "relationships" \? <RelationshipField/);
 });
 
