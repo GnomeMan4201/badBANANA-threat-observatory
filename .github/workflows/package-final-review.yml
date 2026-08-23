@@ -1,0 +1,29 @@
+name: package final review source
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out authoritative final commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: 45f22e3d3ed522c3afb8d7882e7a68d0ad7919e5
+          persist-credentials: false
+
+      - name: Archive exact tracked source
+        run: git archive --format=zip --output=badBANANA-threat-observatory-final-45f22e3.zip 45f22e3d3ed522c3afb8d7882e7a68d0ad7919e5
+
+      - name: Upload review source
+        uses: actions/upload-artifact@v4
+        with:
+          name: badBANANA-final-review-source-45f22e3
+          path: badBANANA-threat-observatory-final-45f22e3.zip
+          if-no-files-found: error
+          retention-days: 1
