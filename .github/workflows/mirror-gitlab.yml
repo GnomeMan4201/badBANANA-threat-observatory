@@ -2,8 +2,10 @@ name: mirror-gitlab
 
 on:
   push:
-    branches: [main]
-    tags: ['*']
+    branches:
+      - '**'
+    tags:
+      - '**'
   workflow_dispatch:
 
 permissions:
@@ -24,7 +26,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Push GitHub main and tags to GitLab
+      - name: Mirror all GitHub branches and tags to GitLab
         shell: bash
         env:
           GITLAB_MIRROR_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
@@ -34,13 +36,14 @@ jobs:
           token=$(printf '%s' "$GITLAB_MIRROR_TOKEN" | tr -d '[:space:]')
           test -n "$token"
 
-          git fetch origin '+refs/heads/main:refs/remotes/origin/main'
+          git fetch origin '+refs/heads/*:refs/remotes/origin/*' --prune --tags
+          git remote set-head origin -d 2>/dev/null || true
           git remote add gitlab 'https://gitlab.com/GnomeMan/badBANANA-threat-observatory.git'
 
           auth=$(printf 'oauth2:%s' "$token" | base64 -w0)
-          git -c http.extraHeader="Authorization: Basic $auth" push gitlab refs/remotes/origin/main:refs/heads/main
-          git -c http.extraHeader="Authorization: Basic $auth" push gitlab --tags
+          git -c http.extraHeader="Authorization: Basic $auth" push --prune gitlab 'refs/remotes/origin/*:refs/heads/*'
+          git -c http.extraHeader="Authorization: Basic $auth" push --prune gitlab 'refs/tags/*:refs/tags/*'
 
-          expected=$(git rev-parse refs/remotes/origin/main)
-          actual=$(git -c http.extraHeader="Authorization: Basic $auth" ls-remote gitlab refs/heads/main | awk '{print $1}')
-          test "$actual" = "$expected"
+          expected_main=$(git rev-parse refs/remotes/origin/main)
+          actual_main=$(git -c http.extraHeader="Authorization: Basic $auth" ls-remote gitlab refs/heads/main | awk '{print $1}')
+          test "$actual_main" = "$expected_main"
