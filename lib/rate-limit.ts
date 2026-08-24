@@ -56,15 +56,16 @@ async function checkD1Bucket(request: Request, database: D1Database, maximum: nu
       PRIMARY KEY (bucket_key, window_start)
     )
   `).run();
-  await database.prepare(`
+
+  // Return the incremented count from the same SQLite statement that mutates it.
+  // This avoids a separate post-write SELECT whose value could be advanced by another
+  // concurrent request before this request observes its own result.
+  const row = await database.prepare(`
     INSERT INTO ingest_rate_limit (bucket_key, window_start, count)
     VALUES (?, ?, 1)
     ON CONFLICT(bucket_key, window_start) DO UPDATE SET count = count + 1
-  `).bind(bucketKey, windowStart).run();
-
-  const row = await database.prepare(
-    "SELECT count FROM ingest_rate_limit WHERE bucket_key = ? AND window_start = ?",
-  ).bind(bucketKey, windowStart).first<{ count: number }>();
+    RETURNING count
+  `).bind(bucketKey, windowStart).first<{ count: number }>();
   const count = typeof row?.count === "number" ? row.count : maximum + 1;
 
   if (count === 1) {
