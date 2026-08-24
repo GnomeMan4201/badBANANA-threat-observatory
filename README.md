@@ -26,13 +26,13 @@ Production captures are source-preserving screenshots from the live v1.2.0 Obser
 
 - Production: https://badbanana-threat-observatory.badbanana6969.workers.dev
 - Current source: https://github.com/GnomeMan4201/badBANANA-threat-observatory/tree/main
-- Frozen v1.2.0 source: https://github.com/GnomeMan4201/badBANANA-threat-observatory/tree/release/v1.2.0
+- Frozen v1.2.1 source: https://github.com/GnomeMan4201/badBANANA-threat-observatory/tree/release/v1.2.1
 
 The production Worker is backed by Cloudflare D1. Feed credentials remain server-only Cloudflare Worker secrets and are never required in the browser.
 
 ## Release status
 
-- Version: `1.2.0`
+- Version: `1.2.1`
 - Runtime: Node.js `22.13.0` or newer
 - Deployment: Next.js on Cloudflare Workers through vinext and the Cloudflare Vite plugin
 - Persistence: Cloudflare D1 with explicitly labeled isolate-memory degradation
@@ -40,7 +40,7 @@ The production Worker is backed by Cloudflare D1. Feed credentials remain server
 
 ## Ingestion mode
 
-This deployment runs in `demand-driven` mode. The repository now targets standard Cloudflare Workers directly; scheduled triggers are intentionally not enabled in v1.2.0, so the application does not claim continuous collection. A future scheduler can call the same `runIngestionCycle()` operation after separate correctness and operational verification.
+This deployment runs in `demand-driven` mode. The repository now targets standard Cloudflare Workers directly; scheduled triggers are intentionally not enabled in v1.2.1, so the application does not claim continuous collection. A future scheduler can call the same `runIngestionCycle()` operation after separate correctness and operational verification.
 
 The browser makes an explicit bounded maintenance request on initial use and every five minutes while open:
 
