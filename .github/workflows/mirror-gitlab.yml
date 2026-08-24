@@ -31,6 +31,11 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$GITLAB_MIRROR_TOKEN"
+          git fetch origin '+refs/heads/main:refs/remotes/origin/main'
           git remote add gitlab "https://oauth2:${GITLAB_MIRROR_TOKEN}@gitlab.com/GnomeMan/badBANANA-threat-observatory.git"
           git push gitlab refs/remotes/origin/main:refs/heads/main
           git push gitlab --tags
+
+          expected=$(git rev-parse refs/remotes/origin/main)
+          actual=$(git ls-remote gitlab refs/heads/main | awk '{print $1}')
+          test "$actual" = "$expected"
