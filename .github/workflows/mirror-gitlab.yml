@@ -1,0 +1,36 @@
+name: mirror-gitlab
+
+on:
+  push:
+    branches: [main]
+    tags: ['*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-gitlab
+  cancel-in-progress: true
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out full repository history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Push GitHub main and tags to GitLab
+        shell: bash
+        env:
+          GITLAB_MIRROR_TOKEN: ${{ secrets.GITLAB_MIRROR_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$GITLAB_MIRROR_TOKEN"
+          git remote add gitlab "https://oauth2:${GITLAB_MIRROR_TOKEN}@gitlab.com/GnomeMan/badBANANA-threat-observatory.git"
+          git push gitlab refs/remotes/origin/main:refs/heads/main
+          git push gitlab --tags
