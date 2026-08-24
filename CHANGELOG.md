@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.2.1
+
+- Hardened the demand-driven `/api/ingest` maintenance boundary so missing-Origin and cross-origin browser requests are rejected while keeping the documentation explicit that request-origin enforcement is not client authentication.
+- Added a D1-shared six-request-per-minute ingest limiter keyed by a SHA-256 digest of the Cloudflare-reported client IP, with an explicitly documented isolate-local fallback when D1 is unavailable.
+- Made the shared D1 counter return its post-increment value from the same SQLite UPSERT, avoiding a separate post-write read under concurrency.
+- Replaced source-text-only limiter assertions with executed behavioral regressions covering concurrent shared-counter calls, no lost updates, hashed persistent keys, and D1-failure fallback behavior.
+- Documented the beta-tagged `vinext` build adapter as a known stability/supply-chain caveat without treating the beta label itself as a demonstrated defect.
+- Preserved the v1.2.0 evidence model, source normalization, export policy, replay semantics, correlation discipline, geography boundaries, and client/server credential isolation unchanged.
+
 ## 1.2.0
 
 - Standardized the release source on Cloudflare Workers hosting: standard Cloudflare Vite/Wrangler configuration is now authoritative, D1 is a normal `DB` Workers binding with first-deploy auto-provisioning, and production deployment is available through a manual GitHub Actions workflow.
