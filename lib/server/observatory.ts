@@ -2,7 +2,7 @@ import type { ThreatSourceAdapter } from "../source-adapter";
 import type { IngestionHealth, KevCatalogPayload, NormalizedObservation, ObservationScope, ObservatoryPayload, SearchPayload, SourceHealth, SourceIngestCycle, SourceSnapshot, TimeWindow } from "../threat-types";
 import type { PageCursor } from "../request-validation";
 import { correlate } from "../analysis";
-import { nextRetryAt, selectLeaseBackend, sourceEligibility, statusDuringBackoff, summarizeFreshness } from "../history-core";
+import { nextRetryAt, selectLeaseBackend, sourceEligibility, statusDuringBackoff, statusForSnapshotRead, summarizeFreshness } from "../history-core";
 import { getCredential } from "./runtime-config";
 import { readAllSourceCaches, readSourceCache, writeSourceCache } from "./cache";
 import {
@@ -208,7 +208,7 @@ function readSnapshot(adapter: ThreatSourceAdapter, cached?: SourceSnapshot): So
 }
 
 function enrichSnapshot(adapter: ThreatSourceAdapter, snapshot: SourceSnapshot): SourceSnapshot {
-  return { ...snapshot, health: healthFromAdapter(adapter, snapshot.health) };
+  return { ...snapshot, health: healthFromAdapter(adapter, { ...snapshot.health, status: statusForSnapshotRead(snapshot) }) };
 }
 
 function disabledSnapshot(adapter: ThreatSourceAdapter): SourceSnapshot {
