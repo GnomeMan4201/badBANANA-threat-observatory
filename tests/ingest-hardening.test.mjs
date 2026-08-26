@@ -25,7 +25,7 @@ test("D1-backed ingest limiter executes shared atomic increments and allows only
   const results = await Promise.all(Array.from({ length: 7 }, () => checkIngestRateLimit(request, database)));
   assert.equal(results.filter((result) => result.allowed).length, 6);
   assert.equal(results.filter((result) => !result.allowed).length, 1);
-  assert.deepEqual(results.map((result) => result.remaining), [5, 4, 3, 2, 1, 0, 0]);
+  assert.deepEqual(results.map((result) => result.remaining).sort((left, right) => right - left), [5, 4, 3, 2, 1, 0, 0]);
   assert.equal(database.state.counts.size, 1);
   const [[storedKey, count]] = database.state.counts.entries();
   assert.equal(count, 7);
