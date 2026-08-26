@@ -159,6 +159,12 @@ export function sourceEligibility(snapshot: SourceSnapshot | undefined, configur
   return "eligible";
 }
 
+export function statusForSnapshotRead(snapshot: Pick<SourceSnapshot, "expiresAt" | "health">, now = Date.now()): SourceHealth["status"] {
+  if (snapshot.health.status !== "healthy") return snapshot.health.status;
+  const expiresAt = Date.parse(snapshot.expiresAt);
+  return Number.isFinite(expiresAt) && expiresAt > now ? "healthy" : "stale";
+}
+
 export function pruneMemoryEvents(events: ObservationEvent[], now = Date.now()): ObservationEvent[] {
   const cutoff = now - RETENTION_MS;
   return events.filter((event) => new Date(event.detectedAt).getTime() >= cutoff);

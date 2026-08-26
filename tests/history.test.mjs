@@ -17,6 +17,7 @@ import {
   selectLeaseBackend,
   snapshotOnlyHealth,
   statusDuringBackoff,
+  statusForSnapshotRead,
   summarizeFreshness,
   sourceEligibility,
   upsertMemoryLedger,
@@ -146,6 +147,15 @@ test("ingestion eligibility respects configuration, TTL and backoff", () => {
   assert.equal(sourceEligibility(snapshot, true, Date.parse("2026-08-21T06:10:00.000Z")), "fresh");
   assert.equal(sourceEligibility({ ...snapshot, expiresAt: "2026-08-21T06:05:00.000Z", health: { id: "threatfox", nextRetryAt: "2026-08-21T06:20:00.000Z" } }, true, Date.parse("2026-08-21T06:10:00.000Z")), "backoff");
   assert.equal(sourceEligibility({ ...snapshot, expiresAt: "2026-08-21T06:05:00.000Z" }, true, Date.parse("2026-08-21T06:10:00.000Z")), "eligible");
+});
+
+test("expired healthy snapshots are reported stale on read", () => {
+  const health = { id: "threatfox", status: "healthy" };
+  const now = Date.parse("2026-08-26T22:00:00.000Z");
+  assert.equal(statusForSnapshotRead({ expiresAt: "2026-08-24T23:20:00.000Z", health }, now), "stale");
+  assert.equal(statusForSnapshotRead({ expiresAt: "2026-08-26T22:20:00.000Z", health }, now), "healthy");
+  assert.equal(statusForSnapshotRead({ expiresAt: "invalid", health }, now), "stale");
+  assert.equal(statusForSnapshotRead({ expiresAt: "2026-08-26T22:20:00.000Z", health: { ...health, status: "offline" } }, now), "offline");
 });
 
 test("a concurrent refresh lease admits one holder until expiry", () => {
