@@ -6,7 +6,7 @@
 
 An evidence-first threat-observation system that keeps current source state, material-change events, and operational fetch telemetry semantically separate. Missing, stale, disabled, or unavailable data remains visibly missing. The interface never substitutes demo records or inferred attribution.
 
-The current release hardens evidence dates and device-local acknowledgement state, makes all important read failures visibly distinct from successful zero-result states, stabilizes correlation requests, and strengthens the evidence drawer, bounded investigation filters, source interpretation, mobile controls, and export accounting. Every animated replay mark still corresponds to a retained `NEW`, `UPDATED`, or `REMOVED` event; it is not decorative network traffic.
+The current release derives source health from cache expiry at read time so expired evidence cannot remain labeled fresh. It also hardens evidence dates and device-local acknowledgement state, makes all important read failures visibly distinct from successful zero-result states, stabilizes correlation requests, and strengthens the evidence drawer, bounded investigation filters, source interpretation, mobile controls, and export accounting. Every animated replay mark still corresponds to a retained `NEW`, `UPDATED`, or `REMOVED` event; it is not decorative network traffic.
 
 ## Production views
 
@@ -26,13 +26,13 @@ Production captures are source-preserving screenshots from the live v1.2.0 Obser
 
 - Production: https://badbanana-threat-observatory.badbanana6969.workers.dev
 - Current source: https://github.com/GnomeMan4201/badBANANA-threat-observatory/tree/main
-- Frozen v1.2.1 source: https://github.com/GnomeMan4201/badBANANA-threat-observatory/tree/release/v1.2.1
+- Frozen v1.2.2 source: https://github.com/GnomeMan4201/badBANANA-threat-observatory/tree/release/v1.2.2
 
 The production Worker is backed by Cloudflare D1. Feed credentials remain server-only Cloudflare Worker secrets and are never required in the browser.
 
 ## Release status
 
-- Version: `1.2.1`
+- Version: `1.2.2`
 - Runtime: Node.js `22.13.0` or newer
 - Deployment: Next.js on Cloudflare Workers through vinext and the Cloudflare Vite plugin
 - Persistence: Cloudflare D1 with explicitly labeled isolate-memory degradation
@@ -40,7 +40,7 @@ The production Worker is backed by Cloudflare D1. Feed credentials remain server
 
 ## Ingestion mode
 
-This deployment runs in `demand-driven` mode. The repository now targets standard Cloudflare Workers directly; scheduled triggers are intentionally not enabled in v1.2.1, so the application does not claim continuous collection. A future scheduler can call the same `runIngestionCycle()` operation after separate correctness and operational verification.
+This deployment runs in `demand-driven` mode. The repository now targets standard Cloudflare Workers directly; scheduled triggers are intentionally not enabled in v1.2.2, so the application does not claim continuous collection. A future scheduler can call the same `runIngestionCycle()` operation after separate correctness and operational verification.
 
 The browser makes an explicit bounded maintenance request on initial use and every five minutes while open:
 

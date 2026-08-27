@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.2
+
+- Reclassified expired cached source snapshots from `healthy` to `stale` at read time so the Observatory cannot report old evidence as fresh merely because the last fetch succeeded.
+- Failed closed to `stale` when a supposedly healthy snapshot carries an invalid expiry while preserving existing `offline`, `disabled`, and failure-derived states.
+- Added a regression covering expired, current, invalid-expiry, and non-healthy snapshot reads.
+- Made the concurrent D1 limiter regression compare the atomic remaining-count multiset instead of assuming nondeterministic promise completion order, eliminating a test-only release-gate flake without changing runtime limiting behavior.
+- Preserved the v1.2.1 ingestion boundary, D1 schema, evidence ledger, source normalization, export policy, replay semantics, and credential isolation unchanged.
+
 ## 1.2.1
 
 - Hardened the demand-driven `/api/ingest` maintenance boundary so missing-Origin and cross-origin browser requests are rejected while keeping the documentation explicit that request-origin enforcement is not client authentication.
