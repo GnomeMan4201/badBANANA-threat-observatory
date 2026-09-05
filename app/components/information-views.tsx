@@ -1,4 +1,5 @@
 import type { FreshnessSummary, HistoryHealth, IngestionHealth, ObservatoryAnalytics, SourceHealth } from "../../lib/threat-types";
+import { interpretSourceState } from "../../lib/history-core";
 import { formatTimestamp } from "./observatory-format";
 
 export function SourcesView({ sources, history, freshness, ingestion }: { sources: SourceHealth[]; history: HistoryHealth; freshness: FreshnessSummary; ingestion: IngestionHealth }) {
@@ -31,7 +32,7 @@ export function SourcesView({ sources, history, freshness, ingestion }: { source
           <header><b>{source.name}</b><em className={source.status}>{source.status.toUpperCase()}</em></header>
           <dl>
             <dt>CONFIGURED</dt><dd>{source.configured ? "YES" : "NO"}</dd>
-            <dt>OPERATOR INTERPRETATION</dt><dd>{operatorState(source)}</dd>
+            <dt>OPERATOR INTERPRETATION</dt><dd>{interpretSourceState(source)}</dd>
             <dt>LAST ATTEMPT</dt><dd>{formatTimestamp(source.lastAttempt)}</dd>
             <dt>LAST SUCCESS</dt><dd>{formatTimestamp(source.lastSuccess)}</dd>
             <dt>DATA AGE BASIS</dt><dd>{source.lastSuccess ? `SINCE ${formatTimestamp(source.lastSuccess)}` : "NOT AVAILABLE"}</dd>
@@ -88,12 +89,3 @@ export function MethodView() {
 }
 
 function numberOrUnavailable(value?: number): string { return value === undefined ? "NOT AVAILABLE" : String(value); }
-
-function operatorState(source: SourceHealth): string {
-  if (!source.configured || source.status === "disabled") return "NOT CONFIGURED — NO SOURCE READ ATTEMPTED";
-  if (source.status === "stale") return source.recordCount > 0 ? "LAST COLLECTION FAILED — STALE VALIDATED DATA RETAINED" : "LAST COLLECTION FAILED — NO VALIDATED RECORDS AVAILABLE";
-  if (source.status === "offline") return "SOURCE UNAVAILABLE — ZERO RESULTS NOT ASSUMED";
-  if (source.status === "healthy" && source.recordCount === 0) return "SUCCESSFUL READ — SOURCE RETURNED ZERO VALIDATED RECORDS";
-  if (source.status === "healthy") return "REACHABLE — VALIDATED RECORDS AVAILABLE";
-  return "STATE UNRESOLVED";
-}
