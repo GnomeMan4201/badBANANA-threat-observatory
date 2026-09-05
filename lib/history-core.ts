@@ -165,6 +165,21 @@ export function statusForSnapshotRead(snapshot: Pick<SourceSnapshot, "expiresAt"
   return Number.isFinite(expiresAt) && expiresAt > now ? "healthy" : "stale";
 }
 
+export function interpretSourceState(source: SourceHealth): string {
+  if (!source.configured || source.status === "disabled") return "NOT CONFIGURED — NO SOURCE READ ATTEMPTED";
+  if (source.status === "stale") {
+    const retained = source.recordCount > 0 ? "STALE VALIDATED DATA RETAINED" : "NO VALIDATED RECORDS AVAILABLE";
+    const failed = (source.consecutiveFailures ?? 0) > 0 || Boolean(source.error) || Boolean(source.nextRetryAt);
+    if (failed) return `LAST COLLECTION FAILED — ${retained}`;
+    const expiresAt = source.expiresAt ? Date.parse(source.expiresAt) : Number.NaN;
+    return Number.isFinite(expiresAt) ? `CACHE EXPIRED — ${retained}` : `CACHE EXPIRY INVALID OR MISSING — ${retained}`;
+  }
+  if (source.status === "offline") return "SOURCE UNAVAILABLE — ZERO RESULTS NOT ASSUMED";
+  if (source.status === "healthy" && source.recordCount === 0) return "SUCCESSFUL READ — SOURCE RETURNED ZERO VALIDATED RECORDS";
+  if (source.status === "healthy") return "REACHABLE — VALIDATED RECORDS AVAILABLE";
+  return "STATE UNRESOLVED";
+}
+
 export function pruneMemoryEvents(events: ObservationEvent[], now = Date.now()): ObservationEvent[] {
   const cutoff = now - RETENTION_MS;
   return events.filter((event) => new Date(event.detectedAt).getTime() >= cutoff);
