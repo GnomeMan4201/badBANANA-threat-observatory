@@ -11,7 +11,8 @@
     "preview": "npm run build && vite preview",
     "deploy": "npm run build && wrangler deploy",
     "test": "npm run build && node --experimental-strip-types --test tests/*.test.mjs",
-    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
+    "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
+    "verify": "bash scripts/verify-release.sh"
   },
   "dependencies": {
     "next": "16.3.4",
