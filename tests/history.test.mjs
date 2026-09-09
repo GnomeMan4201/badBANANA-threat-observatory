@@ -8,6 +8,7 @@ import {
   hashNormalizedObservation,
   inactiveCisaCutoff,
   ingestionHealthWithCycles,
+  interpretSourceState,
   INACTIVE_CISA_RETENTION_MS,
   isBackoffActive,
   nextRetryAt,
@@ -156,6 +157,27 @@ test("expired healthy snapshots are reported stale on read", () => {
   assert.equal(statusForSnapshotRead({ expiresAt: "2026-08-26T22:20:00.000Z", health }, now), "healthy");
   assert.equal(statusForSnapshotRead({ expiresAt: "invalid", health }, now), "stale");
   assert.equal(statusForSnapshotRead({ expiresAt: "2026-08-26T22:20:00.000Z", health: { ...health, status: "offline" } }, now), "offline");
+});
+
+test("stale source interpretation distinguishes expiry from collection failure", () => {
+  const source = {
+    id: "threatfox",
+    name: "ThreatFox",
+    status: "stale",
+    configured: true,
+    recordCount: 451,
+    expiresAt: "2026-09-03T22:58:47.000Z",
+    consecutiveFailures: 0,
+    authMode: "Auth-Key header",
+    refreshPolicy: "15 minutes",
+    upstreamUrl: "https://threatfox.abuse.ch/api/",
+    dataUsed: "IOC",
+    coverage: "Requested 24-hour IOC window",
+    coverageMode: "bounded-window",
+  };
+  assert.equal(interpretSourceState(source), "CACHE EXPIRED — STALE VALIDATED DATA RETAINED");
+  assert.equal(interpretSourceState({ ...source, consecutiveFailures: 1, error: "Upstream timeout" }), "LAST COLLECTION FAILED — STALE VALIDATED DATA RETAINED");
+  assert.equal(interpretSourceState({ ...source, expiresAt: undefined }), "CACHE EXPIRY INVALID OR MISSING — STALE VALIDATED DATA RETAINED");
 });
 
 test("a concurrent refresh lease admits one holder until expiry", () => {

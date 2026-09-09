@@ -208,7 +208,15 @@ function readSnapshot(adapter: ThreatSourceAdapter, cached?: SourceSnapshot): So
 }
 
 function enrichSnapshot(adapter: ThreatSourceAdapter, snapshot: SourceSnapshot): SourceSnapshot {
-  return { ...snapshot, health: healthFromAdapter(adapter, { ...snapshot.health, status: statusForSnapshotRead(snapshot) }) };
+  return {
+    ...snapshot,
+    health: healthFromAdapter(adapter, {
+      ...snapshot.health,
+      fetchedAt: snapshot.fetchedAt,
+      expiresAt: snapshot.expiresAt,
+      status: statusForSnapshotRead(snapshot),
+    }),
+  };
 }
 
 function disabledSnapshot(adapter: ThreatSourceAdapter): SourceSnapshot {
