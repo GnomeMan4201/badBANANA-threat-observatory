@@ -1,12 +1,38 @@
 # badBANANA // THREAT OBSERVATORY
 
+Inspect exploited vulnerabilities and threat indicators, check their source evidence, and review retained changes.
+
+**[Open the live Observatory](https://badbanana-threat-observatory.badbanana6969.workers.dev)** · [Try the KEV walkthrough](#try-it-inspect-one-exploited-vulnerability) · [Source coverage](#source-coverage) · [Run it yourself](#environment-and-deployment)
+
+The Observatory brings CISA KEV, ThreatFox, URLhaus, and MalwareBazaar into one analyst workspace. Use it to inspect source records, distinguish source dates from collection times, and export bounded current-state results. Missing, stale, disabled, or unavailable data stays visibly labeled.
+
 <p align="center">
   <img src="docs/observatory-eye-faithful-hq.gif" alt="badBANANA Observatory eye" width="320">
 </p>
 
-An evidence-first threat-observation system that keeps current source state, material-change events, and operational fetch telemetry semantically separate. Missing, stale, disabled, or unavailable data remains visibly missing. The interface never substitutes demo records or inferred attribution.
+## Try it: inspect one exploited vulnerability
 
-The current release derives source health from cache expiry at read time so expired evidence cannot remain labeled fresh. It also hardens evidence dates and device-local acknowledgement state, makes all important read failures visibly distinct from successful zero-result states, stabilizes correlation requests, and strengthens the evidence drawer, bounded investigation filters, source interpretation, mobile controls, and export accounting. Every animated replay mark still corresponds to a retained `NEW`, `UPDATED`, or `REMOVED` event; it is not decorative network traffic.
+1. Open the live Observatory and select **Sources** to check CISA's availability and freshness.
+2. Select **Exploited**, then **RECENT KEV / DAY-GRANULAR** and **7D**. This scope uses CISA's date added, at day precision.
+3. Open a returned CVE row. Inspect the source-specific vendor, product, required action, and ransomware-use fields alongside the record's provenance.
+4. Compare **OBSERVATION TIME**, **FIRST INGESTED**, and **LAST MATERIAL CHANGE**. They answer different questions; a fresh fetch does not prove a new exploit.
+5. Use **OPEN VALIDATED UPSTREAM SOURCE PAGE** when available to inspect the original reference.
+
+If the seven-day view returns no matches, use **CURRENT KEV CATALOG** to inspect an existing entry. A successful empty result, a stale source, and an unavailable read have different meanings. None establishes that your systems are unaffected.
+
+**Result:** a source-backed CVE record you can inspect and reference, with the date basis and collection limits visible. This workflow does not determine whether your own assets are vulnerable.
+
+## Export a scoped current-state page
+
+Export is a separate workflow. Start in **Pulse**, **Infrastructure**, **URLs**, or **Malware**, choose a time window, and apply the available search or filters. Then select **Export**, review the source selection and visible-page counts, choose **JSONL**, **CSV**, **STIX 2.1**, defanged text, or a manifest, and download the result.
+
+Exports cover the loaded page after the selected policy is applied. Review emitted and unsupported counts. The dedicated **Exploited** workspace's KEV filters do **not** carry directly into Export.
+
+## What the evidence means
+
+Current source state, material-change events, and fetch telemetry remain separate. The interface never substitutes demo records or inferred attribution. Collection is demand-driven; this deployment does not claim continuous monitoring.
+
+The implementation and limitations are documented below, including source coverage, retention, provenance, and export semantics.
 
 ## Production views
 
