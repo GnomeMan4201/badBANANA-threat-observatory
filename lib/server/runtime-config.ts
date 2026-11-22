@@ -7,6 +7,12 @@ export function getCredential(key: CredentialKey): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
+// Server-side only. A missing or short token is always rejected by the maintenance route.
+export function getMaintenanceToken(): string | undefined {
+  const value = (env as unknown as Record<string, unknown>).OBSERVATORY_MAINTENANCE_TOKEN;
+  return typeof value === "string" ? value : undefined;
+}
+
 export function getDatabase(): D1Database | undefined {
   return (env as unknown as { DB?: D1Database }).DB;
 }
