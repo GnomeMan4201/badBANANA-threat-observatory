@@ -219,6 +219,8 @@ URLHAUS_AUTH_KEY=
 MALWAREBAZAAR_AUTH_KEY=
 ```
 
+Optional scheduler authentication: set `OBSERVATORY_MAINTENANCE_TOKEN` as a **server-side Cloudflare Worker secret** (at least 32 characters). A request with `Authorization: Bearer <token>` must match the configured secret; a missing, malformed, or invalid bearer credential receives the same HTTP 401 response without falling back to browser-origin checks. Requests without an Authorization header retain the existing same-origin browser behavior. The secret must never appear in client code, logs, or responses. This change does **not** configure a scheduler or create a secret; if a future GitHub Actions scheduler is approved, store the same token separately as the Observatory repository's `OBSERVATORY_MAINTENANCE_TOKEN` Actions secret.
+
 Production credentials must be stored as Cloudflare Worker secrets, never committed source or GitHub variables exposed to the client. The application accesses them only through the Workers runtime binding surface. They must never appear in `NEXT_PUBLIC_*`, client components, HTML, logs, fixtures, or committed files.
 
 The repository targets standard Cloudflare Workers directly. `wrangler.jsonc` is the Worker configuration source of truth and declares a draft D1 binding named `DB`. Wrangler 4 automatically provisions that D1 resource on the first authenticated deployment and keeps the binding linked on later deploys. No account-specific D1 identifier is committed.
